@@ -12,6 +12,7 @@
 
 import os
 import subprocess
+import glob
 
 
 dng_file = '/home/hernan/Documents/DNG_TO_EXR/sample_images/exampleDNG_0001.dng'
@@ -23,6 +24,21 @@ def return_dng_files(folder):
     folders = os.listdir(folder)
     
     return folders
+
+
+def get_files_of_type(dir, fileType):
+    """
+    Return files of the given filetype in a location (dir)
+    """
+    fils = []
+    for x in os.walk(dir):		
+        for y in glob.glob(os.path.join(x[0], "*.{}".format(fileType))):
+            fils.append(os.path.normpath(y))
+
+    if fils:
+        return fils
+    else:
+        return "No files of type: {}".format(fileType)
 
 
 def dng_to_exr(dng_path, output_folder):
@@ -44,7 +60,7 @@ def dng_to_exr(dng_path, output_folder):
         
 
 def convert_all_dngs_to_exr(folder_input, folder_output):
-    folders = return_dng_files(folder_input)
+    folders = get_files_of_type(folder_input, "dng")
     for folder in folders:
         full_path = os.path.join(folder_input, folder)
         if os.path.isfile(full_path):
