@@ -1,22 +1,31 @@
 ## MLV_app
 
-PySide interface wrapping the MLV dump command line tool from Magic lantern.
+This is a very simple wrapper of the great *mlv_dump* tool made by the guys at magic lanter.
 
+
+Make sure you update the constants.py file variable **MLV** to point to your mlv_dump file on disk
+
+```
+MLV = "./mlv/mlv_dump"
+```
 
 ### Work in progress DNG to EXR
 
 This tool converts **DNG** to **EXR** using the next command line tools
 
- ---dcraw (http://www.guillermoluijk.com/tutorial/dcraw/index_en.htm)
+  * dcraw (http://www.guillermoluijk.com/tutorial/dcraw/index_en.htm)
  
- ---imagemagick (https://www.lifewire.com/convert-linux-command-unix-command-4097060)
+  * imagemagick (https://www.lifewire.com/convert-linux-command-unix-command-4097060)
 
 
 install **dcraw** by
-
-    sudo apt-get update -y
-    sudo apt-get install -y dcraw
+```
+sudo apt-get update -y
+sudo apt-get install -y dcraw
+```
 
  install **imagemagick** by
- 
-    sudo apt install imagemagick
+``` 
+sudo apt install imagemagick
+```
+
