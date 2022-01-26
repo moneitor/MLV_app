@@ -1,4 +1,5 @@
-from PySide2.QtWidgets import QApplication, QDialog, QFormLayout, QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QSpinBox, QVBoxLayout, QFileDialog, QRadioButton
+from PySide2.QtWidgets import QApplication, QDialog, QFormLayout, QGroupBox, QHBoxLayout, QLineEdit, QPushButton, QSpinBox, QVBoxLayout, QFileDialog, QRadioButton, QProgressBar
+from PySide2.QtWidgets import QListView, QAbstractItemView, QTreeView
 from PySide2.QtCore import Qt
 from dng_to_exr_logic import convert_all_dngs_to_exr
 
@@ -19,6 +20,8 @@ class DNG_EXR_app(QDialog):
         
         self.option = "dng"
         
+        self.folders = []
+        
         self.widgets()
         self.layouts()
         self.connections()
@@ -27,11 +30,9 @@ class DNG_EXR_app(QDialog):
     def widgets(self):
         self.ln_file_path = QLineEdit()
         self.ln_file_path.setReadOnly(True)
-        self.btn_file_search = QPushButton("...")
+        self.btn_file_search = QPushButton("Folder")
         
-        self.ln_output_path = QLineEdit()
-        self.ln_output_path.setReadOnly(True)
-        self.btn_output_search = QPushButton("...")
+        self.pb_progress = QProgressBar()              
         
         self.spn_first_frame = QSpinBox()
         self.spn_first_frame.setMaximum(10000)
@@ -53,12 +54,11 @@ class DNG_EXR_app(QDialog):
         self.lyt_file.addWidget(self.btn_file_search)
         self.grp_file.setLayout(self.lyt_file)
         
-        self.grp_output = QGroupBox("Output Path")        
+        self.grp_output = QGroupBox("Progress")        
         self.lyt_output = QHBoxLayout()
-        self.lyt_output.addWidget(self.ln_output_path)
-        self.lyt_output.addWidget(self.btn_output_search)
+        self.lyt_output.addWidget(self.pb_progress)
         self.grp_output.setLayout(self.lyt_output)
-        self.grp_output.setAlignment(Qt.AlignRight)
+        self.grp_output.setAlignment(Qt.AlignLeft)
                 
         self.lyt_buttons = QHBoxLayout()                      
         self.lyt_buttons.addWidget(self.btn_convert)
@@ -75,32 +75,46 @@ class DNG_EXR_app(QDialog):
         
         
     def connections(self):
-        self.btn_file_search.clicked.connect(self.lookup_dir)
-        self.btn_output_search.clicked.connect(self.save_dir)
-        
+        self.btn_file_search.clicked.connect(self.lookup_dir)        
         self.btn_convert.clicked.connect(self.dng_to_exr)
-        self.btn_cancel.clicked.connect(self.close)
+        self.btn_cancel.clicked.connect(self.close)  
     
-    
-    
-    def _lookup_dir(self):
-        asset_dir = QFileDialog.getExistingDirectory(self, "Select Folder")        
-        self.ln_folder_path.setText(asset_dir)
-        self.folder = asset_dir
-        self.return_first_element(asset_dir)
+
     
     def lookup_dir(self):
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.DirectoryOnly)
+        file_dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        file_view = file_dialog.findChild(QListView, 'listView')
+
+        # to make it possible to select multiple directories:
+        if file_view:
+            file_view.setSelectionMode(QAbstractItemView.MultiSelection)
+        f_tree_view = file_dialog.findChild(QTreeView)
+        if f_tree_view:
+            f_tree_view.setSelectionMode(QAbstractItemView.MultiSelection)
+
+        if file_dialog.exec():
+            paths = file_dialog.selectedFiles()
+            
+        if len(paths) > 1:
+            self.folders = paths.pop(0)
+            
+        self.folders = paths
+        
+        folder_names = [os.path.basename(name) for name in paths]
+        st = "   --   ".join(f for f in folder_names)
+        
+        print(folder_names)
         
         filter = 'DNG File (*.DNG *.dng)'
         
-        files = []
-        
-        dng_dir = QFileDialog.getExistingDirectory(self, "Select a MLV file. ", filter)        
+        #dng_dir = QFileDialog.getExistingDirectory(self, "Select a MLV file. ", filter)      
 
-            
-        self.ln_file_path.setText(dng_dir)
-        self.in_path = dng_dir
-        self.folder = dng_dir          
+        if len(paths) > 1:
+            self.ln_file_path.setText(st)
+        else:
+            self.ln_file_path.setText(paths[0])       
 
         
     def save_dir(self):       
@@ -115,8 +129,10 @@ class DNG_EXR_app(QDialog):
         
         
     def dng_to_exr(self):
-
-        convert_all_dngs_to_exr(self.in_path, self.out_path)
+        for folder in self.folders:
+            output_path = folder + "_EXR"
+            convert_all_dngs_to_exr(folder, output_path, self.pb_progress)
+        
         
         
 

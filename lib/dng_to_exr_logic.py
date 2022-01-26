@@ -15,16 +15,6 @@ import subprocess
 import glob
 
 
-dng_file = '/home/hernan/Documents/DNG_TO_EXR/sample_images/exampleDNG_0001.dng'
-folder_input = '/home/hernan/Documents/MLV_app/testVideos/M05-1826_OUT'
-folder_output = '/home/hernan/Documents/MLV_app/testVideos/M05-1826_OUT/exampleDNG'
-
-
-def return_dng_files(folder):
-    folders = os.listdir(folder)
-    
-    return folders
-
 
 def get_files_of_type(dir, fileType):
     """
@@ -39,9 +29,14 @@ def get_files_of_type(dir, fileType):
         return fils
     else:
         return "No files of type: {}".format(fileType)
+    
 
 
 def dng_to_exr(dng_path, output_folder):
+    """
+    Converts a DNG file into an EXR file by using dcraw to Imagemagick's convert comand line tools
+    """
+    
     if os.path.isdir(output_folder):
         print ("Folder already exists.")
     else:
@@ -51,24 +46,42 @@ def dng_to_exr(dng_path, output_folder):
     
         file_name = os.path.splitext(os.path.basename(dng_path))[0] + ".exr"
         
-        cmd = 'dcraw -c -w -H 0 -o 1 -4'
+        #cmd = 'dcraw -c -w -H 0 -o 1 -4'
+        #cmd = 'dcraw -c -w -H 0 -g 1.1 0 -q 3 -o 1 -6'
+        cmd = 'dcraw -c -w -H 0 -g 2.2 0 -o 1 -4'
         cmd += ' {} '.format(dng_path)
-        cmd += '| convert - -depth 16 {}'.format(os.path.join(output_folder, file_name))      
+        cmd += '| convert - -depth 16 {}'.format(os.path.join(output_folder, file_name))     
         
 
-        subprocess.run(cmd, shell=True)    
-        
+        subprocess.run(cmd, shell=True)        
 
-def convert_all_dngs_to_exr(folder_input, folder_output):
+
+def convert_all_dngs_to_exr(folder_input, folder_output, bar):
+    """
+    Runs over all DNG file in the folder_input and saves an exr file for each one on the folder_output
+    """
     folders = get_files_of_type(folder_input, "dng")
+    files_total = len(folders)
+    
+    counter = 0
+    
     for folder in folders:
         full_path = os.path.join(folder_input, folder)
         if os.path.isfile(full_path):
             print(full_path)
-            dng_to_exr(full_path, folder_output)
-            print("outputed file")
+            dng_to_exr(full_path, folder_output)    
+            counter += 1       
+            
+            percentage = (counter / float(files_total) ) * 100
+            
+            bar.setValue(percentage)
+            
+            
+    print("**************** Converting finished. ****************************")
+            
     
     
 if __name__ == "__main__":
-    convert_all_dngs_to_exr(folder_input, folder_output)
-    #dng_to_exr(dng_file, folder_output)
+    pass
+    #convert_all_dngs_to_exr(folder_input, folder_output)
+    
