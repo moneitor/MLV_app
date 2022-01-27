@@ -48,9 +48,12 @@ def dng_to_exr(dng_path, output_folder):
         
         #cmd = 'dcraw -c -w -H 0 -o 1 -4'
         #cmd = 'dcraw -c -w -H 0 -g 1.1 0 -q 3 -o 1 -6'
-        cmd = 'dcraw -c -w -H 0 -g 2.2 0 -o 1 -4'
+        #cmd = 'dcraw -c -v -w -H 0 -k 256 -b 7 -q 3 -o 1 -4' NO GAMMA
+        #cmd = 'dcraw -c -w -H 0 -g 0.7 0 -b 1 -q 3 -o 1 -6' GAMMA WORKING
+        cmd = 'dcraw -c -v -w -H 0 -n 1 -k 256 -b 10 -q 3 -o 1 -4'
         cmd += ' {} '.format(dng_path)
-        cmd += '| convert - -depth 16 {}'.format(os.path.join(output_folder, file_name))     
+        cmd += '| convert - -depth 16 {}'.format(os.path.join(output_folder, file_name))
+            
         
 
         subprocess.run(cmd, shell=True)        
@@ -77,7 +80,7 @@ def convert_all_dngs_to_exr(folder_input, folder_output, bar):
             bar.setValue(percentage)
             
             
-    print("**************** Converting finished. ****************************")
+    print("\n**************** Converting finished. ****************************\n\n")
             
     
     
