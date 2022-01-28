@@ -64,11 +64,11 @@ def dng_to_exr(dng_path, output_folder, c_space, high_m, use_wb, use_gamma, blac
         if not use_gamma:
             cmd += '-k {} '.format(str(black)) # K for black level
             
-        if use_gamma:
-            cmd += '-g {} 1 '.format(str(gamma))            
-            
         cmd += '-b {} '.format(str(white)) # B for brightness
             
+        if use_gamma:
+            cmd += '-g {} 1 '.format(str(gamma))           
+
         cmd += '-q 3 ' # Filtering Quality
         
         if not use_gamma:
