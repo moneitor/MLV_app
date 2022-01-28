@@ -29,3 +29,5 @@ sudo apt-get install -y dcraw
 sudo apt install imagemagick
 ```
 
+####  DNG to EXR window
+![](images/DNG_EXR.png)
