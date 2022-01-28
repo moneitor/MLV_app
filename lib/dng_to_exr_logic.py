@@ -10,6 +10,13 @@
 #    sudo apt install imagemagick
 
 
+#cmd = 'dcraw -c -w -H 0 -o 1 -4'
+#cmd = 'dcraw -c -w -H 0 -g 1.1 0 -q 3 -o 1 -6'
+#cmd = 'dcraw -c -v -w -H 0 -k 256 -b 7 -q 3 -o 1 -4' NO GAMMA
+#cmd = 'dcraw -c -w -H 0 -g 0.7 0 -b 1 -q 3 -o 1 -6' GAMMA WORKING
+#cmd = 'dcraw -c -v -w -H 0 -n 1 -k 256 -b 10 -q 3 -o 1 -4'
+
+
 import os
 import subprocess
 import glob
@@ -32,7 +39,7 @@ def get_files_of_type(dir, fileType):
     
 
 
-def dng_to_exr(dng_path, output_folder):
+def dng_to_exr(dng_path, output_folder, c_space, high_m, use_wb, use_gamma, black, white, gamma):
     """
     Converts a DNG file into an EXR file by using dcraw to Imagemagick's convert comand line tools
     """
@@ -45,12 +52,32 @@ def dng_to_exr(dng_path, output_folder):
     if os.path.isfile(dng_path):
     
         file_name = os.path.splitext(os.path.basename(dng_path))[0] + ".exr"
+        #cmd = 'dcraw -c -v -w -H 0 -n 1 -k 256 -b 10 -q 3 -o 1 -4
+        cmd = 'dcraw -c '
         
-        #cmd = 'dcraw -c -w -H 0 -o 1 -4'
-        #cmd = 'dcraw -c -w -H 0 -g 1.1 0 -q 3 -o 1 -6'
-        #cmd = 'dcraw -c -v -w -H 0 -k 256 -b 7 -q 3 -o 1 -4' NO GAMMA
-        #cmd = 'dcraw -c -w -H 0 -g 0.7 0 -b 1 -q 3 -o 1 -6' GAMMA WORKING
-        cmd = 'dcraw -c -v -w -H 0 -n 1 -k 256 -b 10 -q 3 -o 1 -4'
+        if use_wb:
+            cmd += '-w '            
+
+        cmd += ' -H {} '.format(high_m) # Clipping method
+        cmd += '-n 100 ' # Noise reduction
+        
+        if not use_gamma:
+            cmd += '-k {} '.format(str(black)) # K for black level
+            
+        if use_gamma:
+            cmd += '-g {} 1 '.format(str(gamma))            
+            
+        cmd += '-b {} '.format(str(white)) # B for brightness
+            
+        cmd += '-q 3 ' # Filtering Quality
+        
+        if not use_gamma:
+            cmd += '-o {} -4'.format(c_space) # Color Space -4
+            
+        if use_gamma:
+            cmd += '-o {} -6'.format(c_space) # Color Space -4
+        
+        
         cmd += ' {} '.format(dng_path)
         cmd += '| convert - -depth 16 {}'.format(os.path.join(output_folder, file_name))
             
@@ -59,7 +86,7 @@ def dng_to_exr(dng_path, output_folder):
         subprocess.run(cmd, shell=True)        
 
 
-def convert_all_dngs_to_exr(folder_input, folder_output, bar):
+def convert_all_dngs_to_exr(folder_input, folder_output, bar, c_space, high_m, use_wb, use_gamma, black, white, gamma):
     """
     Runs over all DNG file in the folder_input and saves an exr file for each one on the folder_output
     """
@@ -72,7 +99,7 @@ def convert_all_dngs_to_exr(folder_input, folder_output, bar):
         full_path = os.path.join(folder_input, folder)
         if os.path.isfile(full_path):
             print(full_path)
-            dng_to_exr(full_path, folder_output)    
+            dng_to_exr(full_path, folder_output, c_space, high_m, use_wb, use_gamma, black, white, gamma)    
             counter += 1       
             
             percentage = (counter / float(files_total) ) * 100
