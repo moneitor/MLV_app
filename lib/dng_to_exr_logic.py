@@ -59,7 +59,7 @@ def dng_to_exr(dng_path, output_folder, c_space, high_m, use_wb, use_gamma, blac
             cmd += '-w '            
 
         cmd += ' -H {} '.format(high_m) # Clipping method
-        cmd += '-n 100 ' # Noise reduction
+        cmd += '-n 1 ' # Noie reduction
         
         if not use_gamma:
             cmd += '-k {} '.format(str(black)) # K for black level

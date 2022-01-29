@@ -9,6 +9,11 @@ Make sure you update the constants.py file variable **MLV** to point to your mlv
 MLV = "./mlv/mlv_dump"
 ```
 
+#### MLV Dump Window
+![](images/MLV_DNG.png)
+
+
+
 ### Work in progress DNG to EXR
 
 This tool converts **DNG** to **EXR** using the next command line tools
