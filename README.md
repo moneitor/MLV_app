@@ -1,4 +1,4 @@
-## MLV_app
+## MLV_app DNG to EXR exporter
 
 **Ubuntu 20.04.3 LTS**
 
